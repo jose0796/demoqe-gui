@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt 
 import matplotlib.animation as animation
+import numpy as np
+import math as mt
 from com import *
 import serial 
 
@@ -7,22 +9,25 @@ import serial
 t = [0.1,0.2,0.3,0.4,0.5]
 fig= plt.figure()
 ax1 = fig.add_subplot(1,1,1)
-plt.title('Prueba 1')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.legend()
-
 dataSerial = serial.Serial('/dev/ttyUSB0', baudrate=115200)
+
+def convert(data, max=3, min=0, bitnum=12): 
+    data_converted = float(data*(max-min)/(2**12))
+    return data_converted
+
 
 def animate(i):
     channel1 = []
     channel2 = []
     data =[]
-    data = startReceiving(dataSerial)
-    channel1.append(data[0])
-    channel2.append(data[1])
+    timescale = np.linspace(start=0,stop=1,num=2000,endpoint=True)
+    while len(channel1) != len(timescale):
+        data = startReceiving(dataSerial)
+        channel1.append(convert(data[0]))
+        channel2.append(convert(data[1]))
     ax1.clear()
-    ax1.plot([0.5],channel1)
+    ax1.plot(timescale,channel1,timescale,channel2)
+
         
 ani = animation.FuncAnimation(fig, animate, interval=10)
 plt.show()

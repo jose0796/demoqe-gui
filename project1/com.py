@@ -14,9 +14,6 @@ def unframeData(frame,channel=1,digital=0):
             return (frame[1] & 0xb0) >> 6 
 
 
-
-
-
 def synchronize(dataSerial):
     
     while(True):
