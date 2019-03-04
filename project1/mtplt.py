@@ -6,7 +6,7 @@ from com import *
 import serial 
 
 ##1 example for plotting 
-t = [0.1,0.2,0.3,0.4,0.5]
+
 fig= plt.figure()
 ax1 = fig.add_subplot(1,1,1)
 dataSerial = serial.Serial('/dev/ttyUSB0', baudrate=115200)
