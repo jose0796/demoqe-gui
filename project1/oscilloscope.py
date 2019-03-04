@@ -1,6 +1,7 @@
-
 #!python 3.x
 import sys 
+import serial 
+from com import *
 import numpy as np
 import math
 import random
@@ -10,6 +11,7 @@ from PyQt5.QtCore import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 class MplCanvas(FigureCanvas):
     
@@ -24,59 +26,30 @@ class MplCanvas(FigureCanvas):
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(parent)
         self.canvas.move(60,80)
+        self.dataSerial = serial.Serial('/dev/ttyUSB0', baudrate=115200)
 
     def plot(self):
-        self.axes.clear()
-        data = [random.uniform(0.0,1.0) for i in range(25)]
-        self.axes.plot(data)
-        self.axes.grid()
-        self.axes.set_yticklabels([])
-        self.axes.set_xticklabels([])
-        self.axes.margins(0)
+        self.update_figure()
         
-        self.canvas.draw()
-
-""" 
-        self.compute_initial_figure()
-
-        
-        self.setParent(parent)
-def compute_initial_figure(self):
-        pass
-        FigureCanvas.setSizePolicy(self,
-                                   QtWidgets.QSizePolicy.Expanding,
-                                   QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self) 
-
-        
-    def compute_initial_figure(self):
-        pass
-
-class MplLivePlot(MplCanvas):
-
-    def __init__(self, *args, **kwargs):
-        MplCanvas.__init__(self, *args, **kwargs)
-        timer = QtCore.QTimer(self)
-        timer.timeout.connect(self.update_figure)
-        timer.start(100)
-
-    def compute_initial_figure(self):
-        self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
 
     def update_figure(self):
-        # Build a list of 4 random integers between 0 and 10 (both inclusive)
-        l = [random.randint(0, 10) for i in range(4)]
-        self.axes.cla()
-        self.axes.plot([0, 1, 2, 3], l, 'r')
-        self.draw() """
-    
+        self.axes.clear()
+        channel1 = []
+        channel2 = []
+        data =[]
+        timescale = np.linspace(start=0,stop=1,num=2000,endpoint=True)
+        while len(channel1) != len(timescale):
+            data = startReceiving(self.dataSerial)
+            channel1.append(convert(data[0]))
+            channel2.append(convert(data[1]))
+        self.axes.plot(timescale,channel1)
+        self.axes.set_xlim([0.0, 1.0])
+        self.axes.set_ylim([0.0, 3.0])
+        self.axes.set_xticklabels([])
+        self.axes.set_yticklabels([])
+        self.axes.grid()
+        self.canvas.draw()
         
-
-        
-        
-        
-
-
 
 class Window(QMainWindow): 
     def __init__(self):
@@ -92,24 +65,7 @@ class Window(QMainWindow):
         self.menuBar().addSeparator()
         self.menuBar().addMenu(self.help_menu)
 
-
-        #self.plotFig = QtWidgets.QWidget(self)
-        #self.fig = plt.figure()
-        #self.axes = self.fig.add_subplot(111)
-
         self.canvas = MplCanvas(self)
-        
-
-
-        """ self.canvas = FigureCanvas(self.fig)
-        self.canvas.setParent(self)
-        self.canvas.move(60,80) """
-        
-        #l = QtWidgets.QVBoxLayout(self.plotFig)
-        #sc = MplLivePlot(self.plotFig, width=5, height=5, dpi=100)
-        #l.addWidget(sc)
-        #self.plotFig.setFocus() 
-        #self.setCentralWidget(self.plotFig)
 
         #window config
         self.title = "Demoqe Project"
@@ -160,7 +116,6 @@ class Window(QMainWindow):
         self.slider.setTickPosition(QSlider.TicksAbove)
         self.slider.setTickInterval(1)
 
-
         self.InitWindow()
 
     def InitWindow(self):
@@ -173,7 +128,10 @@ class Window(QMainWindow):
     
     def plot(self):
         ''' plot some random stuff '''
-        self.canvas.plot()
+        timer = QtCore.QTimer(self)
+        timer.timeout.connect(self.canvas.plot)
+        timer.start(1)
+        
 
 
     

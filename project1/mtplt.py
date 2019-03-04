@@ -9,7 +9,7 @@ import serial
 
 fig= plt.figure()
 ax1 = fig.add_subplot(1,1,1)
-dataSerial = serial.Serial('/dev/ttyUSB0', baudrate=115200)
+
 
 def convert(data, max=3, min=0, bitnum=12): 
     data_converted = float(data*(max-min)/(2**12))

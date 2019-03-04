@@ -1,4 +1,8 @@
 
+def convert(data, max=3, min=0, bitnum=12): 
+    data_converted = float(data*(max-min)/(2**12))
+    return data_converted
+
 
 def unframeData(frame,channel=1,digital=0):
     
