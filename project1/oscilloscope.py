@@ -114,15 +114,15 @@ class MplCanvas(FigureCanvas):
         #dummy iterator
         i = 0
         #if channel1 or channel2 arrays are empty fill them to the maximun requiered
-        if len(self.channel1) != len(self.timescale):
-            while len(self.channel1) != len(self.timescale):
+        if len(self.channelA1) != len(self.timescale):
+            while len(self.channelA1) != len(self.timescale):
                 #receive data from DEM0QE
                 data = startReceiving(self.dataSerial)
                 #convert data from binary to proper voltage value and scale 
                 #to adjust view scale in gui. Then, append to both of analog channels.
                 #For digital channels just receive and append, 1-> 3V and 0 -> 0V. 
-                self.channel1.append(scaleYAxis(ch1)*convert(data[0]))
-                self.channel2.append(scaleYAxis(ch2)*convert(data[1]))
+                self.channelA1.append(scaleYAxis(ch1)*convert(data[0]))
+                self.channelA2.append(scaleYAxis(ch2)*convert(data[1]))
         else: 
             #if array already full then refresh partly in order to  
             #enhance rendering performance and not get too stuck on
@@ -131,12 +131,12 @@ class MplCanvas(FigureCanvas):
                 #receive data from DEM0QE
                 data = startReceiving(self.dataSerial)
                 #pop data from first element in order to add new ones
-                self.channel1.pop(0)
-                self.channel2.pop(0)
+                self.channelA1.pop(0)
+                self.channelA2.pop(0)
                 #as before, process and convert data to proper value 
                 #and append to both arrays for plotting 
-                self.channel1.append(scaleYAxis(ch1)*convert(data[0]))
-                self.channel2.append(scaleYAxis(ch2)*convert(data[1]))
+                self.channelA1.append(scaleYAxis(ch1)*convert(data[0]))
+                self.channelA2.append(scaleYAxis(ch2)*convert(data[1]))
                 i = i + 1
 
         #calculate proper time per division scale 
@@ -147,7 +147,7 @@ class MplCanvas(FigureCanvas):
         self.xticks = np.linspace(0,xlim[1],10)
         
         #plot graph. Slicing is done in order to adjust x's axis. 
-        self.axes.plot(self.timescale[0:ts],self.channel1[0:ts], self.channel2[0:ts])
+        self.axes.plot(self.timescale[0:ts],self.channelA1[0:ts], self.channelA2[0:ts])
         #this commands adds an annotation to show scale of every channel
         showDivScales(self,showScale(ch2),showScale(ch1),0.7*xlim[1])
         #set ticks interval for axis
