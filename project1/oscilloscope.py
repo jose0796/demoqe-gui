@@ -32,9 +32,12 @@ def scaleYAxis(scl):
 def scaleTimeAxis(time=2):
     return 2*(10**(time+1))
 
-def showDivScales(self,scale2: str,scale1: str) -> None:
-    self.axes.text(0.7,0.5,"channel 1: %.1f" % scale1)
-    self.axes.text(0.7,0.3,"channel 2: %.1f" % scale2)
+def timeScaleFactor(time=2):
+    return 10**(time-2)
+
+def showDivScales(self,scale2: str,scale1: str, xpos) -> None:
+    self.axes.text(xpos,0.5,"channel 1: %.1f" % scale1)
+    self.axes.text(xpos,0.3,"channel 2: %.1f" % scale2)
 
 class MplCanvas(FigureCanvas):
     
@@ -50,9 +53,10 @@ class MplCanvas(FigureCanvas):
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(parent)
         self.canvas.move(60,80)
+        self.channel1 = []
+        self.channel2 = []
 
-
-        self.timescale = np.linspace(start=0,stop=1,num=2000,endpoint=True)
+        self.timescale = np.linspace(start=0,stop=1,num=1000,endpoint=True)
         self.xticks = np.linspace(0,1,10)
         self.yticks = np.linspace(0,3,10)
 
@@ -68,25 +72,39 @@ class MplCanvas(FigureCanvas):
 
     def update_figure(self,ch1=0, ch2=0, time=2):
         self.axes.clear()
-        channel1 = []
-        channel2 = []
         data = []
-        while len(channel1) != len(self.timescale):
-            data = startReceiving(self.dataSerial)
-            channel1.append(scaleYAxis(ch1)*convert(data[0]))
-            channel2.append(scaleYAxis(ch2)*convert(data[1]))
+        i = 0
+        if len(self.channel1) != len(self.timescale):
+            while len(self.channel1) != len(self.timescale):
+                data = startReceiving(self.dataSerial)
+                self.channel1.append(scaleYAxis(ch1)*convert(data[0]))
+                self.channel2.append(scaleYAxis(ch2)*convert(data[1]))
+        else: 
+            while i < 300:
+                data = startReceiving(self.dataSerial)
+                print(self.channel1.pop(0))
+                self.channel2.pop(0)
+                self.channel1.append(scaleYAxis(ch1)*convert(data[0]))
+                self.channel2.append(scaleYAxis(ch2)*convert(data[1]))
+                i = i + 1
+
+
         ts = scaleTimeAxis(time)
+        xlim = [timeScaleFactor(time)*i for i in [0.0, 1.0]]
+        self.xticks = np.linspace(0,xlim[1],10)
         
-        self.axes.plot(self.timescale[0:ts],channel1[0:ts])
-        showDivScales(self,showScale(ch2),showScale(ch1))
+
+        self.axes.plot(self.timescale[0:ts],self.channel1[0:ts], self.channel2[0:ts])
+        showDivScales(self,showScale(ch2),showScale(ch1),0.7*xlim[1])
         self.axes.xaxis.set_ticks(self.xticks)
         self.axes.yaxis.set_ticks(self.yticks)
-        self.axes.set_xlim([0.0, 1.0])
+        self.axes.set_xlim(xlim)
         self.axes.set_ylim([0.0, 3.0])
         self.axes.set_xticklabels([])
         self.axes.set_yticklabels([])
         self.axes.grid()
         self.canvas.draw()
+        
         
 
 class Window(QMainWindow): 
