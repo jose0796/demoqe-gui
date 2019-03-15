@@ -52,11 +52,12 @@ def timeScaleFactor(time=0):
     return 10**(-time)
 
 #show scales on graphs as an annotation
-def showDivScales(self,ch1: str,ch2: str, ch3: str, ch4: str, xpos) -> None:
-    self.axes.text(xpos,1,"channel 1: %.1f V/div" % ch1)
-    self.axes.text(xpos,0.8,"channel 2: %.1f V/div" % ch2)
-    self.axes.text(xpos,0.6,"channel 3: %.1f V/div" % ch3)
-    self.axes.text(xpos,0.4,"channel 4: %.1f V/div" % ch4)
+def showDivScales(self,ch1: str,ch2: str, ch3: str, ch4: str, xpos, timeScale ) -> None:
+    self.axes.text(xpos,1.80,"channel 1: %.1f V/div" % ch1,color='r')
+    self.axes.text(xpos,1.50,"channel 2: %.1f V/div" % ch2,color='r')
+    self.axes.text(xpos,1.15,"channel 3: %.1f V/div" % ch3, color='r')
+    self.axes.text(xpos,0.8,"channel 4: %.1f V/div" % ch4, color='r')
+    self.axes.text(xpos,0.45,"time scale: %.1f s/div" % timeScale, color='r')
 
 class MplCanvas(FigureCanvas):
     #this is a canvas which inherits from FigureCanvas
@@ -235,7 +236,7 @@ class MplCanvas(FigureCanvas):
             pass
         #self.axes.plot(self.timescale[0:ts],self.channelD1[0:ts], self.channelD2[0:ts])
         #this commands adds an annotation to show scale of every channel
-        showDivScales(self,showScale(ch1),showScale(ch2), showScale(ch3), showScale(ch4), 0.7*xlim[1])
+        showDivScales(self,showScale(ch1),showScale(ch2), showScale(ch3), showScale(ch4), 0.68*xlim[1], timeScaleFactor(time))
         #set ticks interval for axis
         self.axes.xaxis.set_ticks(self.xticks)
         self.axes.yaxis.set_ticks(self.yticks)
