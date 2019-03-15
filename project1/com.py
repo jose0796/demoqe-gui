@@ -8,14 +8,45 @@
 ## unframing and processing for MC9S08QE128 uC
 #################################################
 
+def openPort(ports,baudrate=115200):
+    import serial
+    for port in ports:
+        s = serial.Serial(port,baudrate=baudrate,timeout=0.1)
+        if s.read(4) != b'':
+            return s
+        
 
-def convertDigital(data, max=3, min=0, bitnum=1):
+def listPorts(platform):
+    import glob 
+    import serial
+
+    if platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif platform.startswith('linux') or platform.startswith('cygwin'):
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsuported Platform')
+    
+    result = []
+    for port in ports:
+        try: 
+            s = serial.Serial(port,baudrate=115200,timeout=1)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    
+    return result 
+
+def convertDigital(data, max=3):
     data_converted = int(data*(max))
     return data_converted
 
 
 def convertAnalog(data, max=3, min=0, bitnum=12): 
-    data_converted = float(data*(max-min)/(2**12))
+    data_converted = float(data*(max-min)/(2**bitnum))
     return data_converted
 
 

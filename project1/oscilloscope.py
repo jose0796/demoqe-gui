@@ -10,9 +10,8 @@
 ## microprocessor.  
 #################################################
 
-import os
+
 import sys 
-import serial 
 from com import *
 import numpy as np
 import math
@@ -103,7 +102,8 @@ class MplCanvas(FigureCanvas):
         self.axes.yaxis.set_ticks(self.yticks)
 
         #open serial port for serial communication with DEM0QE
-        self.dataSerial = serial.Serial('/dev/ttyUSB0', baudrate=115200)
+        #self.dataSerial = serial.Serial('/dev/ttyUSB0', baudrate=115200)
+        self.dataSerial = openPort(listPorts(sys.platform))
 
         
     #based function for calling update_figure with parameters given 
